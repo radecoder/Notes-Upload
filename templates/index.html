@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Notes and Papers</title>
+    <title>Upload Notes, Papers, and Photos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/styles.css"> <!-- Link to CSS file -->
     <style>
@@ -77,7 +77,7 @@
 </head>
 <body>
     <header>
-        <h1><i class="fas fa-upload"></i> Upload Notes and Papers</h1>
+        <h1><i class="fas fa-upload"></i> Upload Notes, Papers, and Photos</h1>
     </header>
     <main>
         <section>
@@ -92,7 +92,19 @@
             </form>
         </section>
         <section>
-            <h2>Uploaded Notes and Papers</h2>
+            <h2>Upload Photos</h2>
+            <form action="/upload_photo" method="post" enctype="multipart/form-data">
+                <label for="photo">Choose a photo to upload:</label>
+                <input type="file" id="photo" name="photo" accept="image/*" required>
+
+                <label for="photo-description">Description (optional):</label>
+                <textarea id="photo-description" name="description" placeholder="Add a short description..."></textarea>
+
+                <button type="submit">Upload Photo</button>
+            </form>
+        </section>
+        <section>
+            <h2>Uploaded Notes, Papers, and Photos</h2>
             <ul id="file-list">
                 <!-- List of uploaded files will be dynamically populated here -->
             </ul>
@@ -102,51 +114,50 @@
         <p>&copy; 2025 Mohd Sahil. All Rights Reserved.</p>
     </footer>
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const fileList = document.getElementById('file-list');
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileList = document.getElementById('file-list');
 
-        async function fetchFiles() {
-            try {
-                const response = await fetch('/files');
-                if (!response.ok) {
-                    throw new Error('Error fetching files: ' + response.statusText);
-                }
-
-                const files = await response.json();
-                files.forEach(file => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <span>${file.name}</span>
-                        <div>
-                            <a href="/files/${file.id}" target="_blank">Download</a>
-                            <button class="view-btn" data-url="/files/${file.id}">View</button>
-                        </div>
-                    `;
-                    fileList.appendChild(li);
-                });
-
-                addViewButtonListeners();
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        function addViewButtonListeners() {
-            const viewButtons = document.querySelectorAll('.view-btn');
-            viewButtons.forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const fileUrl = event.target.getAttribute('data-url');
-                    const viewer = window.open(fileUrl, '_blank');
-                    if (!viewer) {
-                        alert('Unable to open file. Please allow pop-ups for this site.');
+            async function fetchFiles() {
+                try {
+                    const response = await fetch('/files');
+                    if (!response.ok) {
+                        throw new Error('Error fetching files: ' + response.statusText);
                     }
+
+                    const files = await response.json();
+                    files.forEach(file => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <span>${file.name}</span>
+                            <div>
+                                <a href="/files/${file.id}" target="_blank">Download</a>
+                                <button class="view-btn" data-url="/files/${file.id}">View</button>
+                            </div>
+                        `;
+                        fileList.appendChild(li);
+                    });
+
+                    addViewButtonListeners();
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+            function addViewButtonListeners() {
+                const viewButtons = document.querySelectorAll('.view-btn');
+                viewButtons.forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const fileUrl = event.target.getAttribute('data-url');
+                        const viewer = window.open(fileUrl, '_blank');
+                        if (!viewer) {
+                            alert('Unable to open file. Please allow pop-ups for this site.');
+                        }
+                    });
                 });
-            });
-        }
+            }
 
-        fetchFiles();
-    });
-
+            fetchFiles();
+        });
     </script>
 </body>
 </html>
