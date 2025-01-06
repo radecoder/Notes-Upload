@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Notes and Papers</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css"> <!-- Link to CSS file -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="file"], textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #file-list {
+            list-style: none;
+            padding: 0;
+        }
+        #file-list li {
+            padding: 0.5rem;
+            background: #f9f9f9;
+            margin: 0.5rem 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background: #007bff;
+            color: white;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-upload"></i> Upload Notes and Papers</h1>
+    </header>
+    <main>
+        <section>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <label for="file">Choose a file to upload:</label>
+                <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx" required>
+
+                <label for="description">Description (optional):</label>
+                <textarea id="description" name="description" placeholder="Add a short description..."></textarea>
+
+                <button type="submit">Upload</button>
+            </form>
+        </section>
+        <section>
+            <h2>Uploaded Notes and Papers</h2>
+            <ul id="file-list">
+                <!-- List of uploaded files will be dynamically populated here -->
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 Mohd Sahil. All Rights Reserved.</p>
+    </footer>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const fileList = document.getElementById('file-list');
+
+        async function fetchFiles() {
+            try {
+                const response = await fetch('/files');
+                if (!response.ok) {
+                    throw new Error('Error fetching files: ' + response.statusText);
+                }
+
+                const files = await response.json();
+                files.forEach(file => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span>${file.name}</span>
+                        <div>
+                            <a href="/files/${file.id}" target="_blank">Download</a>
+                            <button class="view-btn" data-url="/files/${file.id}">View</button>
+                        </div>
+                    `;
+                    fileList.appendChild(li);
+                });
+
+                addViewButtonListeners();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function addViewButtonListeners() {
+            const viewButtons = document.querySelectorAll('.view-btn');
+            viewButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const fileUrl = event.target.getAttribute('data-url');
+                    const viewer = window.open(fileUrl, '_blank');
+                    if (!viewer) {
+                        alert('Unable to open file. Please allow pop-ups for this site.');
+                    }
+                });
+            });
+        }
+
+        fetchFiles();
+    });
+
+    </script>
+</body>
+</html>
